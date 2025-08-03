@@ -1,0 +1,26 @@
+{
+  "name": "mmo2",
+  "version": "1.0.0",
+  "description": "A multiplayer online game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "profile": "node --prof server.js",
+    "analyze-profile": "node --prof-process isolate-*.log > profiling-report.txt"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^5.1.0",
+    "selfsigned": "^3.0.1",
+    "ws": "^8.14.2",
+    "xlsx": "^0.18.5"
+  },
+  "keywords": [
+    "game",
+    "mmo",
+    "multiplayer"
+  ],
+  "author": "",
+  "license": "MIT"
+}
