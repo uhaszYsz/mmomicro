@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Game Client</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-800 text-slate-200 flex flex-col h-screen overflow-hidden">
+
+    <div id="connection-status" class="disconnected fixed top-0 left-0 w-full h-1.5 transition-colors duration-500 z-50"></div>
+    <div id="connection-text" class="fixed top-2 left-4 text-xs text-white font-semibold z-50">Connecting...</div>
+
+    <div id="area-view-container" class="h-1/2 flex flex-col min-h-0">
+        <div class="bg-slate-700 p-4 border-b border-slate-600 shadow-lg bg-gradient-to-b from-slate-700 to-slate-800 flex-1 overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-4">
+                <h1 id="main-view-title" class="text-2xl font-title text-yellow-400">🗺️ Area View</h1>
+                <div id="main-view-controls" class="flex gap-2">
+                    <button id="toggle-map-view" data-action="toggle-map-view" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors">🗺️ Map</button>
+                    <button id="summon-boss" data-action="summon-boss" class="bg-red-600 text-white font-semibold px-4 py-2 rounded text-sm hover:bg-red-700 transition-colors">👹 Boss</button>
+                </div>
+            </div>
+            <div id="main-view-content"></div>
+            <div id="area-actions-panel" class="mt-2"></div>
+        </div>
+    </div>
+
+    <!-- Character View -->
+    <div id="character-view-container" class="h-1/2 flex flex-col min-h-0">
+        <!-- Character Panel -->
+        <div class="bg-slate-700 border-t border-slate-600 shadow-lg bg-gradient-to-b from-slate-700 to-slate-800 flex-1 flex flex-col min-h-0">
+                    <div id="character-panel-header" class="p-4"></div>
+        <div id="character-panel-full" class="p-4 flex-1 overflow-y-auto custom-scrollbar">
+            <div id="character" class="tab-content"></div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Item Info Popup Modal -->
+    <div id="item-popup-modal" class="modal-backdrop hidden">
+        <div class="relative p-6 border border-blue-600 w-96 shadow-lg rounded-md bg-slate-800 text-slate-200 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="item-popup-title" class="text-xl font-title text-blue-400">Item Information</h3>
+                <button id="close-item-popup" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div id="item-popup-content" class="space-y-4">
+                <!-- Item content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="enemy-info-modal" class="modal-backdrop hidden">
+        <div class="relative p-6 border border-red-600 w-96 shadow-lg rounded-md bg-slate-800 text-slate-200 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="enemy-info-title" class="text-xl font-title text-red-400">Enemy Information</h3>
+                <button id="close-enemy-info" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div id="enemy-info-content" class="space-y-4">
+                <!-- Enemy info will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal-backdrop hidden">
+      <div class="relative p-5 border border-yellow-600 w-96 shadow-lg rounded-md bg-slate-800 text-slate-200">
+        <div class="mt-3 text-center">
+          <h3 class="text-2xl leading-6 font-title text-yellow-400">Welcome, Adventurer!</h3>
+          <div class="mt-2 px-7 py-3"><p class="text-sm text-slate-400">Enter your name and password to begin your journey or create a new character.</p></div>
+          <div class="px-4 py-3 space-y-4">
+            <input id="player-name-input" type="text" placeholder="Player Name (3-15 chars)" class="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <input id="player-password-input" type="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <button data-action="login" class="px-4 py-2 bg-amber-600 text-white font-semibold rounded-md w-full shadow-sm hover:bg-amber-700">Login / Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="building-modal" class="modal-backdrop hidden">
+        <div class="relative p-6 border border-yellow-600 w-11/12 max-w-4xl shadow-lg rounded-md bg-slate-800 text-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="building-modal-title" class="text-2xl font-title text-yellow-400">Building</h3>
+                <button id="close-building-modal" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="building-modal-content" class="space-y-4">
+                <!-- Content will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <div id="teams-modal" class="modal-backdrop hidden">
+        <div class="relative p-6 border border-blue-600 w-11/12 max-w-4xl shadow-lg rounded-md bg-slate-800 text-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="teams-modal-title" class="text-2xl font-title text-blue-400">🛡️ Teams</h3>
+                <button id="close-teams-modal" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="teams-modal-content" class="space-y-4">
+                <!-- Teams content will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <div id="player-profile-modal" class="modal-backdrop hidden">
+        <div class="relative p-5 border border-yellow-600 w-96 shadow-lg rounded-md bg-slate-800 text-slate-200">
+            <div id="player-profile-content"></div>
+            <button data-action="close-modal" class="absolute top-2 right-2 text-slate-400 hover:text-white">&times;</button>
+        </div>
+    </div>
+    
+    <div id="build-modal" class="modal-backdrop hidden">
+        <div class="relative p-5 border border-yellow-600 w-full max-w-md shadow-lg rounded-md bg-slate-800 text-slate-200">
+            <h3 class="text-2xl leading-6 font-title text-yellow-400 mb-4">Construct a Building</h3>
+            <div id="build-modal-content" class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                <!-- Building options will be populated here -->
+            </div>
+            <button data-action="close-modal" class="absolute top-2 right-2 text-slate-400 hover:text-white">&times;</button>
+        </div>
+    </div>
+
+    <div id="enhancement-modal" class="modal-backdrop hidden">
+        <div class="relative p-6 border border-purple-600 w-11/12 max-w-4xl shadow-lg rounded-md bg-slate-800 text-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="enhancement-modal-title" class="text-2xl font-title text-purple-400">✨ Enhancement Station</h3>
+                <button id="close-enhancement-modal" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="enhancement-modal-content" class="space-y-4">
+                <!-- Content will be dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
